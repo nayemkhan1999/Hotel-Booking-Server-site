@@ -1,5 +1,5 @@
 const express = require("express");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
@@ -24,15 +24,32 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    //=================== HotelBookingCollection==============
     const hotelBookingCollection = client
       .db("hotelBooking")
       .collection("hotelCollection");
+    //=====================RoomsCollection====================
+    const roomsCollection = client
+      .db("hotelBooking")
+      .collection("RoomsCollection");
 
     // =============Featured Rooms=============
     app.get("/featuresRoom", async (req, res) => {
       const room = await hotelBookingCollection.find().toArray();
       res.send(room);
+    });
+    // ====================Rooms========================
+    app.get("/rooms", async (req, res) => {
+      const rooms = await roomsCollection.find().toArray();
+      res.send(rooms);
+    });
+
+    // ===================SubCategory Room================
+    app.get("/roomsDetails/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await roomsCollection.findOne(query);
+      res.send(result);
     });
 
     await client.db("admin").command({ ping: 1 });
