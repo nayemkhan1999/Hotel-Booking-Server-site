@@ -11,9 +11,6 @@ app.use(express.json());
 
 //============MiddleWare=================
 
-//User: hotelBooking
-//Pass: aPieM0K7B3oTMV7k
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.l4sutcp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
