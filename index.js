@@ -32,6 +32,10 @@ async function run() {
     const roomsCollection = client
       .db("hotelBooking")
       .collection("RoomsCollection");
+    //================== New Booking Collection=================
+    const myHotelBooking = client
+      .db("hotelBooking")
+      .collection("bookingCollection");
 
     // =============Featured Rooms=============
     app.get("/featuresRoom", async (req, res) => {
@@ -56,7 +60,28 @@ async function run() {
     app.post("/bookNow", async (req, res) => {
       const roomBooking = req.body;
       console.log(roomBooking);
-      const result = await roomsCollection.insertOne(roomBooking);
+      const result = await myHotelBooking.insertOne(roomBooking);
+      res.send(result);
+    });
+    //==================after post then get operation================
+    app.get("/booking", async (req, res) => {
+      const cursor = myHotelBooking.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+    //=============================Email==================
+    app.get("/booking_email/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { UserEmail: email };
+      const result = await myHotelBooking.find(query).toArray();
+      res.send(result);
+    });
+
+    //===================Delete Operation===================
+    app.delete("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await myHotelBooking.deleteOne(query);
       res.send(result);
     });
 
