@@ -10,7 +10,11 @@ const port = process.env.PORT || 5000;
 //============MiddleWare=================
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: [
+      "http://localhost:5173",
+      "https://hotel-booking-d7e89.web.app",
+      "https://hotel-booking-d7e89.firebaseapp.com",
+    ],
     credentials: true,
   })
 );
@@ -47,6 +51,12 @@ const client = new MongoClient(uri, {
   },
 });
 
+const cookeOption = {
+  httpOnly: true,
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+  secure: process.env.NODE_ENV === "production" ? true : false,
+};
+
 async function run() {
   try {
     //=================== HotelBookingCollection==============
@@ -68,18 +78,14 @@ async function run() {
       const token = jwt.sign(user, process.env.SECURE_TOKEN, {
         expiresIn: "365d",
       });
-      res
-        .cookie("token", token, {
-          httpOnly: true,
-          sameSite: "strict",
-          secure: false,
-        })
-        .send({ success: true });
+      res.cookie("token", token, cookeOption).send({ success: true });
     });
     //==========================LogOut===================
     app.post("/logout", async (req, res) => {
       const user = req.body;
-      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+      res
+        .clearCookie("token", { ...cookeOption, maxAge: 0 })
+        .send({ success: true });
     });
 
     // =============Featured Rooms=============
