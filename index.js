@@ -115,8 +115,11 @@ async function run() {
       res.send(result);
     });
     //=============================Email==================
-    // logger, verifyToken,
-    app.get("/booking_email/:email", async (req, res) => {
+
+    app.get("/booking_email/:email", logger, verifyToken, async (req, res) => {
+      if (req.params.email !== req.user.logged) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
       const email = req.params.email;
       const query = { UserEmail: email };
       const result = await myHotelBooking.find(query).toArray();
@@ -127,6 +130,7 @@ async function run() {
     app.patch("/reviewUpdate/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
+      console.log(query, "133 number line");
       const options = { upsert: true };
       const update = req.body;
       const updateReview = {
@@ -160,6 +164,25 @@ async function run() {
       );
       res.send(result);
     });
+
+    //=======================UnAvailable Rooms update==================
+    app.patch("/unAvailableRooms/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const update = req.body;
+      const updateReview = {
+        $set: {
+          availability: update.availability,
+        },
+      };
+      const result = await roomsCollection.updateOne(
+        query,
+        updateReview,
+        options
+      );
+      res.send(result);
+    });
     //===================Delete Operation===================
     app.delete("/booking/:id", async (req, res) => {
       const id = req.params.id;
@@ -168,7 +191,7 @@ async function run() {
       res.send(result);
     });
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
