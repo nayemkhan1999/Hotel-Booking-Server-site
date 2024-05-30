@@ -114,6 +114,12 @@ async function run() {
       const result = await myHotelBooking.insertOne(roomBooking);
       res.send(result);
     });
+    //Optional Part post method & Add Rooms in DataBase
+    app.post("/addedRoom", async (req, res) => {
+      const addRooms = req.body;
+      const result = await roomsCollection.insertOne(addRooms);
+      res.send(result);
+    });
     //==================after post then get operation================
     app.get("/booking", async (req, res) => {
       const cursor = myHotelBooking.find();
